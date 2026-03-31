@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>CureWise AI</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<style>
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg,#e8f2ff,#f7fbff);
+    margin:0;
+    padding:0;
+    transition:0.3s;
+}
+
+body.dark{
+    background:#121212;
+    color:white;
+}
+
+.container{
+    width:750px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+body.dark .container{
+    background:#1e1e1e;
+}
+
+h1{
+    text-align:center;
+    color:#2b4eff;
+}
+
+body.dark h1{
+    color:#7aa2ff;
+}
+
+label{
+    font-weight:bold;
+    margin-top:12px;
+    display:block;
+}
+
+input,select,textarea{
+    width:95%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea{
+    background:#2c2c2c;
+    color:white;
+    border:1px solid #444;
+}
+
+textarea{
+    resize:none;
+    height:70px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:25px;
+    border:none;
+    border-radius:6px;
+    background:#2b4eff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1f3ed9;
+}
+
+.theme-toggle{
+    position:fixed;
+    top:20px;
+    right:20px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:none;
+    font-size:20px;
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.required {
+    color: red;
+    margin-left: 3px;
+}
+
+#selectedSymptoms {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.symptom-tag {
+    padding: 6px 12px;
+    background: #2b4eff;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.symptom-tag span {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.container {
+    margin-bottom: 100px;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.dropdown-button {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+body.dark .dropdown-button {
+    background: #2c2c2c;
+    color: white;
+    border-color: #444;
+}
+
+.dropdown-button:hover {
+    border-color: #2b4eff;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 5px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width:60%;
+}
+
+body.dark .dropdown-menu {
+    background: #2c2c2c;
+    border-color: #444;
+    width:60%;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-search {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+}
+
+body.dark .dropdown-search {
+    background: #2c2c2c;
+    border-bottom-color: #444;
+}
+
+.dropdown-search input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+body.dark .dropdown-search input {
+    background: #1e1e1e;
+    color: white;
+    border-color: #555;
+}
+
+.dropdown-option {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 13px;
+}
+
+.dropdown-option:hover {
+    background: #f0f0f0;
+}
+
+body.dark .dropdown-option:hover {
+    background: #3a3a3a;
+}
+
+.dropdown-option.selected {
+    background: #e3f2fd;
+    color: #2b4eff;
+}
+
+body.dark .dropdown-option.selected {
+    background: #1e3a5f;
+    color: #7aa2ff;
+}
+
+/* Hide original select */
+#symptomSelect {
+    display: none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<button id="themeBtn" class="theme-toggle">🌙</button>
+
+<div class="container">
+
+<h1>CureWise AI</h1>
+
+<form action="/result" method="POST">
+
+<h2>Patient Information</h2>
+
+<label>Name <span class="required">*</span></label>
+<input type="text" name="name" placeholder="Enter full name">
+
+<label>Age<span class="required">*</span></label>
+<input type="number" name="age">
+
+<label>Gender<span class="required">*</span></label>
+<select name="gender">
+<option>Select gender</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<label>Height (cm)<span class="required">*</span></label>
+<input type="number" name="height">
+
+<label>Weight (kg)<span class="required">*</span></label>
+<input type="number" name="weight">
+
+<h2>Symptoms<span class="required">*</span></h2>
+
+<!-- Custom Dropdown -->
+<div class="custom-dropdown">
+    <div class="dropdown-button">
+        <span id="selectedSymptomText">Select a symptom</span>
+        <span class="dropdown-arrow">▼</span>
+    </div>
+    <div class="dropdown-menu">
+        <div class="dropdown-search">
+            <input type="text" id="symptomSearch" placeholder="Search symptoms...">
+        </div>
+        <div id="symptomOptions">
+            {% for s in symptoms_list %}
+                <div class="dropdown-option" data-value="{{ s }}">{{ s }}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="selectedSymptoms"></div>
+
+<input type="hidden" name="symptoms" id="symptomsInput">
+
+<h2>Severe Issues</h2>
+<textarea name="severe_issues" placeholder="Example: breathing difficulty"></textarea>
+
+<h2>Allergies</h2>
+<textarea name="allergies" placeholder="Mention allergies"></textarea>
+
+<p id="errorMsg" style="color:red; display:none; margin-top:10px;">
+Please select all mandatory fields
+</p>
+
+<button type="submit" onclick="return validateForm()">Analyze Health</button>
+
+</form>
+
+</div>
+
+<script>
+// Custom dropdown functionality
+const dropdownButton = document.querySelector('.dropdown-button');
+const dropdownMenu = document.querySelector('.dropdown-menu');
+const symptomOptions = document.getElementById('symptomOptions');
+const searchInput = document.getElementById('symptomSearch');
+const selectedSymptomText = document.getElementById('selectedSymptomText');
+const selectedSymptomsContainer = document.getElementById('selectedSymptoms');
+const symptomsInput = document.getElementById('symptomsInput');
+
+let selectedSymptoms = [];
+
+// Toggle dropdown
+dropdownButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('show');
+    }
+});
+
+// Search functionality
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const options = symptomOptions.querySelectorAll('.dropdown-option');
+    
+    options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+});
+
+// Add symptom when clicked
+function addSymptom(symptom) {
+    if (!selectedSymptoms.includes(symptom)) {
+        selectedSymptoms.push(symptom);
+        updateSelectedSymptoms();
+    }
+}
+
+// Remove symptom
+function removeSymptom(index) {
+    selectedSymptoms.splice(index, 1);
+    updateSelectedSymptoms();
+}
+
+// Update display of selected symptoms
+function updateSelectedSymptoms() {
+    selectedSymptomsContainer.innerHTML = '';
+    
+    selectedSymptoms.forEach((symptom, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'symptom-tag';
+        tag.innerHTML = `${symptom} <span onclick="removeSymptom(${index})">×</span>`;
+        selectedSymptomsContainer.appendChild(tag);
+    });
+    
+    symptomsInput.value = selectedSymptoms.join(', ');
+    
+    // Update button text
+    if (selectedSymptoms.length === 0) {
+        selectedSymptomText.textContent = 'Select a symptom';
+    } else {
+        selectedSymptomText.textContent = `${selectedSymptoms.length} symptom(s) selected`;
+    }
+    
+    // Close dropdown after selection
+    dropdownMenu.classList.remove('show');
+    searchInput.value = '';
+    
+    // Reset search visibility
+    const options = symptomOptions.querySelectorAll('.dropdown-option');
+    options.forEach(option => {
+        option.style.display = 'block';
+    });
+}
+
+// Handle option clicks
+symptomOptions.addEventListener('click', (e) => {
+    const option = e.target.closest('.dropdown-option');
+    if (option) {
+        const symptom = option.getAttribute('data-value');
+        addSymptom(symptom);
+    }
+});
+
+// Make removeSymptom globally available
+window.removeSymptom = removeSymptom;
+
+// Prevent form submission on Enter in search
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+    }
+});
+
+// Initial render
+updateSelectedSymptoms();
+</script>
+
+<script>
+const themeBtn = document.getElementById("themeBtn")
+
+function setTheme() {
+    const theme = localStorage.getItem("theme")
+    if(theme === "dark"){
+        document.body.classList.add("dark")
+        themeBtn.innerText="☀️"
+    }
+}
+
+setTheme()
+
+themeBtn.onclick = () => {
+    document.body.classList.toggle("dark")
+    if(document.body.classList.contains("dark")){
+        localStorage.setItem("theme","dark")
+        themeBtn.innerText="☀️"
+    } else {
+        localStorage.setItem("theme","light")
+        themeBtn.innerText="🌙"
+    }
+}
+</script>
+
+<script>
+function validateForm(){
+    const name = document.querySelector("input[name='name']").value.trim()
+    const age = document.querySelector("input[name='age']").value.trim()
+    const gender = document.querySelector("select[name='gender']").value
+    const height = document.querySelector("input[name='height']").value.trim()
+    const weight = document.querySelector("input[name='weight']").value.trim()
+    const symptoms = document.getElementById("symptomsInput").value.trim()
+
+    if(!name || !age || gender==="Select gender" || !height || !weight || !symptoms){
+        document.getElementById("errorMsg").style.display = "block"
+        const time_error = document.getElementById("errorMsg")
+        setTimeout(() => {time_error.style.display = "none";}, 3000);
+        return false
+    }
+    return true
+}
+</script>
+
+</body>
+</html>
