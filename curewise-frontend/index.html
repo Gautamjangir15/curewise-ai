@@ -342,9 +342,7 @@ body.dark .dropdown-option.selected {
             <input type="text" id="symptomSearch" placeholder="Search symptoms...">
         </div>
         <div id="symptomOptions">
-            {% for s in symptoms_list %}
-                <div class="dropdown-option" data-value="{{ s }}">{{ s }}</div>
-            {% endfor %}
+            
         </div>
     </div>
 </div>
@@ -563,6 +561,23 @@ async function handleSubmit(e){
         console.error('Error:', error);
     }
 }
+
+    async function loadSymptoms() {
+    const res = await fetch("https://curewise-ai.onrender.com/api/symptoms");
+    const data = await res.json();
+
+    const container = document.getElementById("symptomOptions");
+
+    data.forEach(symptom => {
+        const div = document.createElement("div");
+        div.className = "dropdown-option";
+        div.setAttribute("data-value", symptom);
+        div.textContent = symptom;
+        container.appendChild(div);
+    });
+}
+
+loadSymptoms();
 </script>
 
 </body>
