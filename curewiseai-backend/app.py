@@ -74,13 +74,10 @@ def predict_top3(symptoms):
 
     return results
 
-
 @app.route("/")
-def home():
-    return render_template("index.html", symptoms_list=sorted(SYMPTOM_SET))
+def health():
+    return "API is running"
 
-
-@app.route("/result", methods=["POST"])
 def result():
 
     symptoms = request.form["symptoms"].strip().lower()
