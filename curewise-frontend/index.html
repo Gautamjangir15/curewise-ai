@@ -494,7 +494,7 @@ async function handleSubmit(e){
         severe_issues: document.querySelector("textarea[name='severe_issues']").value
     }
 
-    const res = await fetch("https://YOUR-RENDER-URL/api/predict", {
+    const res = await fetch("https://curewise-ai.onrender.com/api/predict", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
