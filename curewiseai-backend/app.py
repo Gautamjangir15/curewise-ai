@@ -32,7 +32,11 @@ for s in df["symptoms"].dropna():
     for p in parts:
         if p:
             SYMPTOM_SET.add(p)
-
+            
+@app.route("/api/symptoms", methods=["GET"])
+def get_symptoms():
+    return jsonify(sorted(list(SYMPTOM_SET)))
+    
 def is_valid_symptom_input(user_input):
 
     user_input = user_input.lower()
