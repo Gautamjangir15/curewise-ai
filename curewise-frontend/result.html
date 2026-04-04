@@ -533,63 +533,22 @@ body.dark .modal-body::-webkit-scrollbar-track {
 
 <div class="card profile-card">
 
-<p><b>Name:</b> {{ name }}</p>
-<p><b>Age:</b> {{ age }}</p>
-<p><b>Gender:</b> {{ gender }}</p>
+<p><b>Name:</b><span id="name"></span></p>
+<p><b>Age:</b> <span id="age"></span></p>
+<p><b>Gender:</b> <span id="gender"></span></p>
 
 <p>
-<b>BMI:</b> {{ bmi }}
-
-<span class="bmi-label {{ bmi_color }}">
-{{ bmi_status }}
-</span>
-
+<b>BMI:</b> <span id="bmi"></span>
+<span id="bmi_status" class="bmi-label"></span>
 </p>
 
 </div>
 
 </div>
 <div class="section">
-{% if error %}
-    <div style="color:red; font-weight:bold; margin-top:20px;">
-        {{ error }}
-    </div>
-{% endif %}
+
 <h3>Predicted Diseases</h3>
-
-{% for disease, prob in predictions %}
-
-<div class="card disease-card {% if disease == best_disease %}best{% endif %}">
-
-<div class="disease-header">
-
-<h3>{{ disease }}</h3>
-
-<div>
-<span class="probability">
-{{ (prob*100)|round(1) }}%
-</span>
-
-<span class="toggle-text" data-disease="{{ disease }}">View Full Report</span>
-</div>
-
-</div>
-
-{% if disease == best_disease %}
-<div class="likely">Most Likely Diagnosis</div>
-{% endif %}
-
-<div class="disease-content" id="content-{{ loop.index }}">
-
-<div class="advice-text">
-{{ advice[disease] }}
-</div>
-
-</div>
-
-</div>
-
-{% endfor %}
+<div id="predictionsContainer"></div>
 
 </div>
 <p style="margin-top:25px;font-size:13px;color:gray;">
@@ -723,11 +682,37 @@ const modalDiseaseName = document.getElementById("modalDiseaseName");
 const closeModalBtn = document.querySelector(".close-modal");
 
 // Store advice content for each disease
-const diseaseAdvice = {};
-{% for disease, prob in predictions %}
-    diseaseAdvice["{{ disease }}"] = `{{ advice[disease]|replace('\\n', '\\\\n')|replace('\\"', '\\\\"')|safe }}`;
-{% endfor %}
+// Fill data from localStorage
+document.getElementById("name").textContent = data.name;
+document.getElementById("age").textContent = data.age;
+document.getElementById("gender").textContent = data.gender;
+document.getElementById("bmi").textContent = data.bmi;
 
+const bmiStatus = document.getElementById("bmi_status");
+bmiStatus.textContent = data.bmi_status;
+bmiStatus.classList.add(data.bmi_color);
+
+// Render predictions
+const container = document.getElementById("predictionsContainer");
+
+data.predictions.forEach(([disease, prob]) => {
+    const div = document.createElement("div");
+    div.className = "card disease-card";
+
+    if (disease === data.best_disease) {
+        div.classList.add("best");
+    }
+
+    div.innerHTML = `
+        <div class="disease-header">
+            <h3>${disease}</h3>
+            <span class="probability">${(prob * 100).toFixed(1)}%</span>
+        </div>
+        ${disease === data.best_disease ? `<div class="likely">Most Likely Diagnosis</div>` : ""}
+    `;
+
+    container.appendChild(div);
+});
 // Add click handlers to all View Report buttons
 document.querySelectorAll(".toggle-text").forEach(btn => {
     btn.onclick = () => {
