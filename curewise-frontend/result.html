@@ -620,6 +620,10 @@ Check Another Patient
 
 const data = JSON.parse(localStorage.getItem("curewise_result"))
 console.log(data)
+if(!data){
+    alert("No data found. Go back and submit again.");
+    window.location.href = "/";
+}
 // Parse and format the advice text into a structured report
 function formatReport(adviceText, diseaseName) {
     // Extract sections using regex
