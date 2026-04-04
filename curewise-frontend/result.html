@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>CureWise AI Result</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#e8f2ff,#f7fbff);
+    margin:0;
+}
+
+body.dark{
+    background:#121212;
+    color:white;
+}
+
+.container{
+    width:750px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+body.dark .container{
+    background:#1e1e1e;
+}
+
+h1{
+    text-align:center;
+    color:#2b4eff;
+}
+
+.section{
+    margin-top:25px;
+}
+
+.card{
+    background:#f4f7ff;
+    padding:15px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+body.dark .card{
+    background:#2a2a2a;
+}
+
+.best{
+    border:2px solid #2b4eff;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:25px;
+    border:none;
+    border-radius:6px;
+    background:#2b4eff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.theme-toggle{
+    position:fixed;
+    top:20px;
+    right:20px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:none;
+    font-size:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+}
+
+.bmi-label{
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:13px;
+    margin-left:10px;
+    color:white;
+}
+
+.green{
+    background:#2ecc71;
+}
+
+.red{
+    background:#e74c3c;
+}
+
+.blue{
+    background:#3498db;
+}
+
+.disease-card{
+    margin-top:20px;
+    padding:20px;
+    border-radius:12px;
+    background:#f4f7ff;
+    transition:0.2s;
+}
+
+body.dark .disease-card{
+    background:#2a2a2a;
+}
+
+.disease-card:hover{
+    transform:scale(1.02);
+    box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+
+.disease-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.probability{
+    background:linear-gradient(45deg,#2bff6e,#6a8cff);
+    color:black;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.likely{
+    margin-top:8px;
+    color:#2b4eff;
+    font-weight:bold;
+}
+
+.disease-content{
+    margin-top:15px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    display:none;
+}
+
+.disease-card.active .disease-content{
+    display:block;
+}
+
+.advice-text{
+    white-space: pre-line;
+    line-height:1.7;
+    font-size:15px;
+    color:#333;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+}
+
+body.dark .advice-text{
+    color:#dcdcdc;
+}
+
+.advice-text strong{
+    font-size:16px;
+    color:#7aa2ff;
+    display:block;
+    margin-top:12px;
+    margin-bottom:4px;
+}
+
+.advice-text ul{
+    margin-left:20px;
+    margin-top:6px;
+}
+
+.advice-text li{
+    margin-bottom:5px;
+}
+
+.toggle-text {
+    background: linear-gradient(135deg, #2b4eff 0%, #6a8cff 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 4px rgba(43, 78, 255, 0.2);
+    border: none;
+    letter-spacing: 0.3px;
+}
+
+.toggle-text:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(43, 78, 255, 0.3);
+    background: linear-gradient(135deg, #1a3acc 0%, #5a7cff 100%);
+}
+
+.toggle-text:active {
+    transform: translateY(0px);
+}
+
+/* For dark mode */
+body.dark .toggle-text {
+    background: linear-gradient(135deg, #7aa2ff 0%, #5a7cff 100%);
+    box-shadow: 0 1px 4px rgba(122, 162, 255, 0.2);
+}
+
+.toggle-text::before {
+    content: "📋";
+    font-size: 10px;
+    margin-right: 2px;
+}
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(43, 78, 255, 0.3);
+    }
+    70% {
+        box-shadow: 0 0 0 4px rgba(43, 78, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(43, 78, 255, 0);
+    }
+}
+
+.toggle-text {
+    animation: pulse 2s infinite;
+}
+
+.toggle-text:hover {
+    animation: none;
+}
+/* Enhanced Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    margin: 5% auto;
+    padding: 0;
+    width: 70%;
+    max-width: 800px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: slideDown 0.4s ease;
+    overflow: hidden;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+body.dark .modal-content {
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3a 100%);
+    color: #fff;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #2b4eff 0%, #1a3acc 100%);
+    padding: 25px 30px;
+    color: white;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header h2::before {
+    content: "📋";
+    font-size: 32px;
+}
+
+.modal-header .disease-name {
+    font-size: 20px;
+    margin-top: 8px;
+    opacity: 0.95;
+    font-weight: normal;
+}
+
+.close-modal {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 30px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Report Card Styles */
+.report-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #2b4eff;
+}
+
+body.dark .report-card {
+    background: #2a2a2a;
+    border-left-color: #7aa2ff;
+}
+
+.report-section {
+    margin-bottom: 25px;
+}
+
+.report-section h3 {
+    color: #2b4eff;
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e7ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.dark .report-section h3 {
+    color: #7aa2ff;
+    border-bottom-color: #3a3a4a;
+}
+
+.report-section h3::before {
+    font-size: 20px;
+}
+
+.risk-section h3::before {
+    content: "⚠️";
+}
+
+.medicines-section h3::before {
+    content: "💊";
+}
+
+.precautions-section h3::before {
+    content: "⚠️";
+}
+
+.doctor-section h3::before {
+    content: "👨‍⚕️";
+}
+
+.condition-section h3::before {
+    content: "📝";
+}
+
+.risk-level {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.risk-low {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.risk-medium {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.risk-high {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+body.dark .risk-low {
+    background: #1e3a2f;
+    color: #8bc34a;
+}
+
+body.dark .risk-medium {
+    background: #4a3a1e;
+    color: #ffd966;
+}
+
+body.dark .risk-high {
+    background: #4a1e24;
+    color: #ff9999;
+}
+
+.medicines-list, .precautions-list {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.medicines-list li, .precautions-list li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.medicines-list li::marker {
+    color: #2b4eff;
+    font-weight: bold;
+}
+
+.doctor-advice {
+    background: #f0f4ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border-left: 3px solid #2b4eff;
+}
+
+body.dark .doctor-advice {
+    background: #1e2a3a;
+}
+
+.report-footer {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e7ff;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+}
+
+body.dark .report-footer {
+    border-top-color: #3a3a4a;
+}
+
+/* Scrollbar Styling */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #2b4eff;
+    border-radius: 10px;
+}
+
+body.dark .modal-body::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-header h2 {
+        font-size: 22px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<button id="themeBtn" class="theme-toggle">🌙</button>
+
+<div class="container">
+
+<h1>CureWise AI Diagnosis Report</h1>
+<div class="section">
+
+<h3>Patient Profile</h3>
+
+<div class="card profile-card">
+
+<p><b>Name:</b> {{ name }}</p>
+<p><b>Age:</b> {{ age }}</p>
+<p><b>Gender:</b> {{ gender }}</p>
+
+<p>
+<b>BMI:</b> {{ bmi }}
+
+<span class="bmi-label {{ bmi_color }}">
+{{ bmi_status }}
+</span>
+
+</p>
+
+</div>
+
+</div>
+<div class="section">
+{% if error %}
+    <div style="color:red; font-weight:bold; margin-top:20px;">
+        {{ error }}
+    </div>
+{% endif %}
+<h3>Predicted Diseases</h3>
+
+{% for disease, prob in predictions %}
+
+<div class="card disease-card {% if disease == best_disease %}best{% endif %}">
+
+<div class="disease-header">
+
+<h3>{{ disease }}</h3>
+
+<div>
+<span class="probability">
+{{ (prob*100)|round(1) }}%
+</span>
+
+<span class="toggle-text" data-disease="{{ disease }}">View Full Report</span>
+</div>
+
+</div>
+
+{% if disease == best_disease %}
+<div class="likely">Most Likely Diagnosis</div>
+{% endif %}
+
+<div class="disease-content" id="content-{{ loop.index }}">
+
+<div class="advice-text">
+{{ advice[disease] }}
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+<p style="margin-top:25px;font-size:13px;color:gray;">
+⚠ This tool provides general health information and is not a medical diagnosis.
+Consult a qualified doctor for medical advice.
+</p>
+<button onclick="window.location.href='/'">
+Check Another Patient
+</button>
+
+</div>
+
+<!-- Enhanced Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close-modal">&times;</span>
+            <h2>Medical Report</h2>
+            <div class="disease-name" id="modalDiseaseName"></div>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<script>
+
+const data = JSON.parse(localStorage.getItem("curewise_result"))
+console.log(data)
+if(!data){
+    alert("No data found. Go back and submit again.");
+    window.location.href = "/";
+}
+// Parse and format the advice text into a structured report
+function formatReport(adviceText, diseaseName) {
+    // Extract sections using regex
+    const conditionMatch = adviceText.match(/Condition Summary:\s*([\s\S]*?)(?=Risk Level:|$)/i);
+    const riskMatch = adviceText.match(/Risk Level:\s*([\s\S]*?)(?=Medicines:|$)/i);
+    const medicinesMatch = adviceText.match(/Medicines:\s*([\s\S]*?)(?=Precautions:|$)/i);
+    const precautionsMatch = adviceText.match(/Precautions:\s*([\s\S]*?)(?=Doctor Advice:|$)/i);
+    const doctorMatch = adviceText.match(/Doctor Advice:\s*([\s\S]*?)$/i);
+    
+    const condition = conditionMatch ? conditionMatch[1].trim() : "Information not available";
+    let riskText = riskMatch ? riskMatch[1].trim() : "Information not available";
+    let medicinesText = medicinesMatch ? medicinesMatch[1].trim() : "Information not available";
+    let precautionsText = precautionsMatch ? precautionsMatch[1].trim() : "Information not available";
+    let doctorText = doctorMatch ? doctorMatch[1].trim() : "Information not available";
+    
+    // Determine risk level for styling
+    let riskLevel = "low";
+    if (riskText.toLowerCase().includes("high")) riskLevel = "high";
+    else if (riskText.toLowerCase().includes("medium")) riskLevel = "medium";
+    
+    // Format medicines as list
+    let medicinesHtml = '';
+    if (medicinesText !== "Information not available") {
+        const medicineLines = medicinesText.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'));
+        if (medicineLines.length > 0) {
+            medicinesHtml = '<ul class="medicines-list">';
+            medicineLines.forEach(line => {
+                const medicine = line.replace(/^[-•]\s*/, '').trim();
+                if (medicine) medicinesHtml += `<li>💊 ${medicine}</li>`;
+            });
+            medicinesHtml += '</ul>';
+        } else {
+            medicinesHtml = `<p>${medicinesText}</p>`;
+        }
+    } else {
+        medicinesHtml = `<p>${medicinesText}</p>`;
+    }
+    
+    // Format precautions as list
+    let precautionsHtml = '';
+    if (precautionsText !== "Information not available") {
+        const precautionLines = precautionsText.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'));
+        if (precautionLines.length > 0) {
+            precautionsHtml = '<ul class="precautions-list">';
+            precautionLines.forEach(line => {
+                const precaution = line.replace(/^[-•]\s*/, '').trim();
+                if (precaution) precautionsHtml += `<li>⚠️ ${precaution}</li>`;
+            });
+            precautionsHtml += '</ul>';
+        } else {
+            precautionsHtml = `<p>${precautionsText}</p>`;
+        }
+    } else {
+        precautionsHtml = `<p>${precautionsText}</p>`;
+    }
+    
+    return `
+        <div class="report-card">
+            <div class="report-section condition-section">
+                <h3>Condition Summary</h3>
+                <p>${condition}</p>
+            </div>
+            
+            <div class="report-section risk-section">
+                <h3>Risk Assessment</h3>
+                <div class="risk-level risk-${riskLevel}">${riskText}</div>
+            </div>
+            
+            <div class="report-section medicines-section">
+                <h3>Recommended Medicines</h3>
+                ${medicinesHtml}
+            </div>
+            
+            <div class="report-section precautions-section">
+                <h3>Precautions & Care</h3>
+                ${precautionsHtml}
+            </div>
+            
+            <div class="report-section doctor-section">
+                <h3>Doctor's Advice</h3>
+                <div class="doctor-advice">
+                    <p>${doctorText}</p>
+                </div>
+            </div>
+            
+            <div class="report-footer">
+                <p>Generated by CureWise AI • ${new Date().toLocaleDateString()} • Not a substitute for professional medical advice</p>
+            </div>
+        </div>
+    `;
+}
+
+// Modal functionality
+const modal = document.getElementById("reportModal");
+const modalBody = document.getElementById("modalBody");
+const modalDiseaseName = document.getElementById("modalDiseaseName");
+const closeModalBtn = document.querySelector(".close-modal");
+
+// Store advice content for each disease
+const diseaseAdvice = {};
+{% for disease, prob in predictions %}
+    diseaseAdvice["{{ disease }}"] = `{{ advice[disease]|replace('\\n', '\\\\n')|replace('\\"', '\\\\"')|safe }}`;
+{% endfor %}
+
+// Add click handlers to all View Report buttons
+document.querySelectorAll(".toggle-text").forEach(btn => {
+    btn.onclick = () => {
+        const diseaseName = btn.getAttribute("data-disease") || btn.closest('.disease-card')?.querySelector('h3')?.innerText;
+        if (diseaseName && diseaseAdvice[diseaseName]) {
+            const formattedReport = formatReport(diseaseAdvice[diseaseName], diseaseName);
+            modalDiseaseName.innerHTML = `<strong>Diagnosis:</strong> ${diseaseName}`;
+            modalBody.innerHTML = formattedReport;
+            modal.style.display = "block";
+            document.body.style.overflow = "hidden";
+        }
+    };
+});
+
+// Close modal functions
+function closeModal() {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+closeModalBtn.onclick = closeModal;
+
+window.onclick = (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+};
+
+// Escape key to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === 'block') {
+        closeModal();
+    }
+});
+
+// Theme toggle
+const themeBtn = document.getElementById("themeBtn");
+
+function setTheme() {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+        document.body.classList.add("dark");
+        themeBtn.innerText = "☀️";
+    }
+}
+
+setTheme();
+
+themeBtn.onclick = () => {
+    document.body.classList.toggle("dark");
+    if (document.body.classList.contains("dark")) {
+        localStorage.setItem("theme", "dark");
+        themeBtn.innerText = "☀️";
+    } else {
+        localStorage.setItem("theme", "light");
+        themeBtn.innerText = "🌙";
+    }
+};
+</script>
+
+</body>
+</html>
