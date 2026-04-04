@@ -15,11 +15,11 @@ app = Flask(
 CORS(app)
 
 # load ML components
-model = pickle.load(open("new_disease_model.pkl","rb"))
-vectorizer = pickle.load(open("new_vectorizer.pkl","rb"))
-le = pickle.load(open("new_label_encoder.pkl","rb"))
+model = pickle.load(open(os.path.join(BASE_DIR, "new_disease_model.pkl"), "rb"))
+vectorizer = pickle.load(open(os.path.join(BASE_DIR, "new_vectorizer.pkl"), "rb"))
+le = pickle.load(open(os.path.join(BASE_DIR, "new_label_encoder.pkl"), "rb"))
 
-df = pd.read_csv('curewise_dataset_shuffled.csv')
+df = pd.read_csv(os.path.join(BASE_DIR, "curewise_dataset_shuffled.csv"))
 SYMPTOM_SET = set()
 
 for s in df["symptoms"].dropna():
