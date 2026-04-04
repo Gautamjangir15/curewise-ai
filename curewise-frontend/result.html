@@ -706,12 +706,37 @@ data.predictions.forEach(([disease, prob]) => {
     div.innerHTML = `
         <div class="disease-header">
             <h3>${disease}</h3>
-            <span class="probability">${(prob * 100).toFixed(1)}%</span>
+            <div>
+                <span class="probability">${(prob * 100).toFixed(1)}%</span>
+                <span class="toggle-text" data-disease="${disease}">View Full Report</span>
+            </div>
         </div>
         ${disease === data.best_disease ? `<div class="likely">Most Likely Diagnosis</div>` : ""}
     `;
 
     container.appendChild(div);
+});
+
+    // Handle View Full Report click
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("toggle-text")) {
+        const disease = e.target.getAttribute("data-disease");
+
+        const adviceText = data.advice[disease];
+
+        if (!adviceText) {
+            alert("No report available");
+            return;
+        }
+
+        const formatted = formatReport(adviceText, disease);
+
+        modalDiseaseName.innerHTML = `<strong>Diagnosis:</strong> ${disease}`;
+        modalBody.innerHTML = formatted;
+
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
 });
 // Add click handlers to all View Report buttons
 document.querySelectorAll(".toggle-text").forEach(btn => {
