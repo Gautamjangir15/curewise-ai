@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import pickle
 import numpy as np
 import pandas as pd
-
+from flask_cors import CORS
 from advisor import generate_medical_advice
 
 app = Flask(__name__)
+CORS(app)
 
 # load ML components
 model = pickle.load(open("new_disease_model.pkl","rb"))
