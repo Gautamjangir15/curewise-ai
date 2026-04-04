@@ -2,7 +2,7 @@ from groq import Groq
 import os
 import re
 
-
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
 
 def generate_medical_advice(symptoms, diseases, age, gender, bmi, allergies, severe_issues):
