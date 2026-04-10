@@ -391,6 +391,9 @@ document.addEventListener('click', (e) => {
         dropdownMenu.classList.remove('show');
     }
 });
+window.addEventListener("load", () => {
+  fetch("https://curewise-ai.onrender.com/");
+});
 
 // Search functionality
 searchInput.addEventListener('input', (e) => {
