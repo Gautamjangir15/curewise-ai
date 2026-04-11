@@ -313,7 +313,7 @@ body.dark .dropdown-option.selected {
 <input type="text" name="name" placeholder="Enter full name">
 
 <label>Age<span class="required">*</span></label>
-<input type="number" name="age">
+<input type="number" name="age" min="0" max="150" step="1" onkeydown="return filterInput(event)" oninput="validatePositive(this)">
 
 <label>Gender<span class="required">*</span></label>
 <select name="gender">
@@ -324,10 +324,10 @@ body.dark .dropdown-option.selected {
 </select>
 
 <label>Height (cm)<span class="required">*</span></label>
-<input type="number" name="height">
+<input type="number" name="height" min="1" max="300" step="0.1" onkeydown="return filterInput(event)" oninput="validatePositive(this)">
 
 <label>Weight (kg)<span class="required">*</span></label>
-<input type="number" name="weight">
+<input type="number" name="weight" min="1" max="500" step="0.1" onkeydown="return filterInput(event)" oninput="validatePositive(this)">
 
 <h2>Symptoms<span class="required">*</span></h2>
 
@@ -378,7 +378,47 @@ const selectedSymptomsContainer = document.getElementById('selectedSymptoms');
 const symptomsInput = document.getElementById('symptomsInput');
 
 let selectedSymptoms = [];
+// Prevent negative values and non-numeric input
+function filterInput(event) {
+    const key = event.key;
+    // Allow: Backspace, Delete, Tab, Escape, Enter, Arrow keys, Decimal point
+    if (key === '-' || key === 'e' || key === 'E') {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
 
+function validatePositive(input) {
+    let value = parseFloat(input.value);
+    
+    // Check if negative or NaN
+    if (isNaN(value) || value < 0) {
+        input.value = '';
+    }
+    
+    // Enforce min/max constraints
+    const min = parseFloat(input.getAttribute('min'));
+    const max = parseFloat(input.getAttribute('max'));
+    
+    if (!isNaN(min) && value < min) {
+        input.value = min;
+    }
+    if (!isNaN(max) && value > max) {
+        input.value = max;
+    }
+}
+
+// Also add this to prevent paste of negative numbers
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('paste', function(e) {
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        if (pastedText.includes('-') || pastedText.includes('e')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
 // Toggle dropdown
 dropdownButton.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -512,7 +552,30 @@ function validateForm(){
     const weight = document.querySelector("input[name='weight']").value.trim()
     const symptoms = document.getElementById("symptomsInput").value.trim()
 
+    // Additional validation for positive numbers
+    if(age && (parseFloat(age) <= 0 || isNaN(parseFloat(age)))){
+        document.getElementById("errorMsg").textContent = "Age must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+    
+    if(height && (parseFloat(height) <= 0 || isNaN(parseFloat(height)))){
+        document.getElementById("errorMsg").textContent = "Height must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+    
+    if(weight && (parseFloat(weight) <= 0 || isNaN(parseFloat(weight)))){
+        document.getElementById("errorMsg").textContent = "Weight must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+
     if(!name || !age || gender==="Select gender" || !height || !weight || !symptoms){
+        document.getElementById("errorMsg").textContent = "Please fill all mandatory fields"
         document.getElementById("errorMsg").style.display = "block"
         const time_error = document.getElementById("errorMsg")
         setTimeout(() => {time_error.style.display = "none";}, 3000);
