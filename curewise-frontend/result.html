@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>CureWise AI Result</title>
+<link rel="icon" href="/static/favicon.ico">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(ellipse at 20% 30%, #0a0e27 0%, #060914 100%);
+    min-height: 100vh;
+    transition: 0.3s;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(43, 78, 255, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+body.dark{
+    background: radial-gradient(ellipse at 20% 30%, #0a0e27 0%, #060914 100%);
+}
+
+body.light {
+    background: radial-gradient(ellipse at 20% 30%, #f0f4ff 0%, #e8eeff 100%);
+}
+
+body.light::before {
+    background: radial-gradient(circle at 80% 20%, rgba(43, 78, 255, 0.05) 0%, transparent 60%);
+}
+
+.container{
+    width: 780px;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+body.light .container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+h1{
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #7aa2ff 0%, #2b4eff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 24px 0 16px 0;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: -0.3px;
+}
+
+body.light h3 {
+    color: #1a1a2e;
+}
+
+.section{
+    margin-top: 25px;
+}
+
+.card{
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+body.light .card{
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body.light .card:hover {
+    background: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card p {
+    margin: 10px 0;
+    font-size: 1rem;
+}
+
+.profile-card b {
+    color: #7aa2ff;
+}
+
+body.light .profile-card b {
+    color: #2b4eff;
+}
+
+.best{
+    border: 2px solid #2b4eff;
+    background: linear-gradient(135deg, rgba(43, 78, 255, 0.15), rgba(26, 58, 217, 0.1));
+}
+
+button{
+    width: 100%;
+    padding: 14px;
+    margin-top: 32px;
+    border: none;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #2b4eff 0%, #1a3ad9 100%);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+button:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(43, 78, 255, 0.4);
+}
+
+.theme-toggle{
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2b4eff, #1a3ad9);
+    backdrop-filter: blur(10px);
+    color: white;
+    transition: all 0.2s ease;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(43, 78, 255, 0.3);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(43, 78, 255, 0.5);
+}
+
+.bmi-label{
+    padding: 5px 12px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    color: white;
+    display: inline-block;
+}
+
+.green{
+    background: #2ecc71;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
+.red{
+    background: #e74c3c;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.blue{
+    background: #3498db;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.disease-card{
+    margin-top: 16px;
+    padding: 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+body.light .disease-card{
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.disease-card:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.disease-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.disease-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.probability{
+    background: linear-gradient(135deg, #2bff6e, #2b4eff);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.likely{
+    margin-top: 10px;
+    color: #7aa2ff;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+body.light .likely {
+    color: #2b4eff;
+}
+
+.toggle-text {
+    background: linear-gradient(135deg, rgba(43, 78, 255, 0.9), rgba(26, 58, 217, 0.9));
+    color: white;
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.toggle-text::before {
+    content: "📄";
+    font-size: 12px;
+}
+
+.toggle-text:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #2b4eff, #1a3ad9);
+    box-shadow: 0 4px 12px rgba(43, 78, 255, 0.4);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(30, 30, 45, 0.98), rgba(20, 20, 35, 0.98));
+    backdrop-filter: blur(20px);
+    margin: 5% auto;
+    padding: 0;
+    width: 70%;
+    max-width: 800px;
+    border-radius: 32px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+    animation: slideDown 0.4s ease;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+body.light .modal-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 255, 0.98));
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #2b4eff 0%, #1a3ad9 100%);
+    padding: 28px 32px;
+    color: white;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header h2::before {
+    content: "📋";
+    font-size: 32px;
+}
+
+.modal-header .disease-name {
+    font-size: 18px;
+    margin-top: 8px;
+    opacity: 0.95;
+    font-weight: normal;
+}
+
+.close-modal {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 32px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Report Card Styles */
+.report-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light .report-card {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.report-section {
+    margin-bottom: 28px;
+}
+
+.report-section h3 {
+    color: #7aa2ff;
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(122, 162, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.light .report-section h3 {
+    color: #2b4eff;
+    border-bottom-color: rgba(43, 78, 255, 0.2);
+}
+
+.risk-section h3::before {
+    content: "⚠️";
+}
+
+.medicines-section h3::before {
+    content: "💊";
+}
+
+.precautions-section h3::before {
+    content: "🛡️";
+}
+
+.doctor-section h3::before {
+    content: "👨‍⚕️";
+}
+
+.condition-section h3::before {
+    content: "📝";
+}
+
+.risk-level {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.risk-low {
+    background: #1e3a2f;
+    color: #8bc34a;
+    border: 1px solid #2ecc71;
+}
+
+.risk-medium {
+    background: #4a3a1e;
+    color: #ffd966;
+    border: 1px solid #f39c12;
+}
+
+.risk-high {
+    background: #4a1e24;
+    color: #ff9999;
+    border: 1px solid #e74c3c;
+}
+
+body.light .risk-low {
+    background: #d4edda;
+    color: #155724;
+}
+
+body.light .risk-medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+body.light .risk-high {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.medicines-list, .precautions-list {
+    margin: 12px 0;
+    padding-left: 24px;
+}
+
+.medicines-list li, .precautions-list li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.medicines-list li::marker {
+    color: #2b4eff;
+    font-weight: bold;
+}
+
+.doctor-advice {
+    background: rgba(43, 78, 255, 0.1);
+    padding: 18px;
+    border-radius: 16px;
+    margin-top: 10px;
+    border-left: 4px solid #2b4eff;
+}
+
+body.light .doctor-advice {
+    background: #f0f4ff;
+}
+
+.report-footer {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+body.light .report-footer {
+    border-top-color: rgba(0, 0, 0, 0.1);
+    color: #888;
+}
+
+/* Scrollbar */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(43, 78, 255, 0.5);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(43, 78, 255, 0.7);
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+    .container {
+        width: 90%;
+        margin: 20px auto;
+        padding: 24px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-header h2 {
+        font-size: 22px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .disease-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+p:has(+ button) {
+    margin-top: 25px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+}
+
+body.light p:has(+ button) {
+    color: #999;
+}
+</style>
+</head>
+
+<body>
+
+<button id="themeBtn" class="theme-toggle">🌙</button>
+
+<div class="container">
+
+<h1>CureWise AI Diagnosis Report</h1>
+<div class="section">
+
+<h3>Patient Profile</h3>
+
+<div class="card profile-card">
+
+<p><b>Name:</b><span id="name"></span></p>
+<p><b>Age:</b> <span id="age"></span></p>
+<p><b>Gender:</b> <span id="gender"></span></p>
+
+<p>
+<b>BMI:</b> <span id="bmi"></span>
+<span id="bmi_status" class="bmi-label"></span>
+</p>
+
+</div>
+
+</div>
+<div class="section">
+
+<h3>Predicted Diseases</h3>
+<div id="predictionsContainer"></div>
+
+</div>
+<p style="margin-top:25px;font-size:13px;color:gray;">
+⚠ This tool provides general health information and is not a medical diagnosis.
+Consult a qualified doctor for medical advice.
+</p>
+<button onclick="window.location.href='/'">
+Check Another Patient
+</button>
+
+</div>
+
+<!-- Enhanced Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close-modal">&times;</span>
+            <h2>Medical Report</h2>
+            <div class="disease-name" id="modalDiseaseName"></div>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<script>
+
+const data = JSON.parse(localStorage.getItem("curewise_result"))
+console.log(data)
+if(!data){
+    alert("No data found. Go back and submit again.");
+    window.location.href = "/";
+}
+// Parse and format the advice text into a structured report
+function formatReport(adviceText, diseaseName) {
+    // Extract sections using regex
+    const conditionMatch = adviceText.match(/Condition Summary:\s*([\s\S]*?)(?=Risk Level:|$)/i);
+    const riskMatch = adviceText.match(/Risk Level:\s*([\s\S]*?)(?=Medicines:|$)/i);
+    const medicinesMatch = adviceText.match(/Medicines:\s*([\s\S]*?)(?=Precautions:|$)/i);
+    const precautionsMatch = adviceText.match(/Precautions:\s*([\s\S]*?)(?=Doctor Advice:|$)/i);
+    const doctorMatch = adviceText.match(/Doctor Advice:\s*([\s\S]*?)$/i);
+    
+    const condition = conditionMatch ? conditionMatch[1].trim() : "Information not available";
+    let riskText = riskMatch ? riskMatch[1].trim() : "Information not available";
+    let medicinesText = medicinesMatch ? medicinesMatch[1].trim() : "Information not available";
+    let precautionsText = precautionsMatch ? precautionsMatch[1].trim() : "Information not available";
+    let doctorText = doctorMatch ? doctorMatch[1].trim() : "Information not available";
+    
+    // Determine risk level for styling
+    let riskLevel = "low";
+    if (riskText.toLowerCase().includes("high")) riskLevel = "high";
+    else if (riskText.toLowerCase().includes("medium")) riskLevel = "medium";
+    
+    // Format medicines as list
+    let medicinesHtml = '';
+    if (medicinesText !== "Information not available") {
+        const medicineLines = medicinesText.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'));
+        if (medicineLines.length > 0) {
+            medicinesHtml = '<ul class="medicines-list">';
+            medicineLines.forEach(line => {
+                const medicine = line.replace(/^[-•]\s*/, '').trim();
+                if (medicine) medicinesHtml += `<li>💊 ${medicine}</li>`;
+            });
+            medicinesHtml += '</ul>';
+        } else {
+            medicinesHtml = `<p>${medicinesText}</p>`;
+        }
+    } else {
+        medicinesHtml = `<p>${medicinesText}</p>`;
+    }
+    
+    // Format precautions as list
+    let precautionsHtml = '';
+    if (precautionsText !== "Information not available") {
+        const precautionLines = precautionsText.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'));
+        if (precautionLines.length > 0) {
+            precautionsHtml = '<ul class="precautions-list">';
+            precautionLines.forEach(line => {
+                const precaution = line.replace(/^[-•]\s*/, '').trim();
+                if (precaution) precautionsHtml += `<li>⚠️ ${precaution}</li>`;
+            });
+            precautionsHtml += '</ul>';
+        } else {
+            precautionsHtml = `<p>${precautionsText}</p>`;
+        }
+    } else {
+        precautionsHtml = `<p>${precautionsText}</p>`;
+    }
+    
+    return `
+        <div class="report-card">
+            <div class="report-section condition-section">
+                <h3>Condition Summary</h3>
+                <p>${condition}</p>
+            </div>
+            
+            <div class="report-section risk-section">
+                <h3>Risk Assessment</h3>
+                <div class="risk-level risk-${riskLevel}">${riskText}</div>
+            </div>
+            
+            <div class="report-section medicines-section">
+                <h3>Recommended Medicines</h3>
+                ${medicinesHtml}
+            </div>
+            
+            <div class="report-section precautions-section">
+                <h3>Precautions & Care</h3>
+                ${precautionsHtml}
+            </div>
+            
+            <div class="report-section doctor-section">
+                <h3>Doctor's Advice</h3>
+                <div class="doctor-advice">
+                    <p>${doctorText}</p>
+                </div>
+            </div>
+            
+            <div class="report-footer">
+                <p>Generated by CureWise AI • ${new Date().toLocaleDateString()} • Not a substitute for professional medical advice</p>
+            </div>
+        </div>
+    `;
+}
+
+// Modal functionality
+const modal = document.getElementById("reportModal");
+const modalBody = document.getElementById("modalBody");
+const modalDiseaseName = document.getElementById("modalDiseaseName");
+const closeModalBtn = document.querySelector(".close-modal");
+
+// Store advice content for each disease
+// Fill data from localStorage
+document.getElementById("name").textContent = data.name;
+document.getElementById("age").textContent = data.age;
+document.getElementById("gender").textContent = data.gender;
+document.getElementById("bmi").textContent = data.bmi;
+
+const bmiStatus = document.getElementById("bmi_status");
+bmiStatus.textContent = data.bmi_status;
+bmiStatus.classList.add(data.bmi_color);
+
+// Render predictions
+const container = document.getElementById("predictionsContainer");
+
+data.predictions.forEach(([disease, prob]) => {
+    const div = document.createElement("div");
+    div.className = "card disease-card";
+
+    if (disease === data.best_disease) {
+        div.classList.add("best");
+    }
+
+    div.innerHTML = `
+        <div class="disease-header">
+            <h3>${disease}</h3>
+            <div>
+                <span class="probability">${(prob * 100).toFixed(1)}%</span>
+                <span class="toggle-text" data-disease="${disease}">View Full Report</span>
+            </div>
+        </div>
+        ${disease === data.best_disease ? `<div class="likely">Most Likely Diagnosis</div>` : ""}
+    `;
+
+    container.appendChild(div);
+});
+
+    // Handle View Full Report click
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("toggle-text")) {
+        const disease = e.target.getAttribute("data-disease");
+
+        const adviceText = data.advice[disease];
+
+        if (!adviceText) {
+            alert("No report available");
+            return;
+        }
+
+        const formatted = formatReport(adviceText, disease);
+
+        modalDiseaseName.innerHTML = `<strong>Diagnosis:</strong> ${disease}`;
+        modalBody.innerHTML = formatted;
+
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
+});
+// Add click handlers to all View Report buttons
+    /*
+document.querySelectorAll(".toggle-text").forEach(btn => {
+    btn.onclick = () => {
+        const diseaseName = btn.getAttribute("data-disease") || btn.closest('.disease-card')?.querySelector('h3')?.innerText;
+        if (diseaseName && diseaseAdvice[diseaseName]) {
+            const formattedReport = formatReport(diseaseAdvice[diseaseName], diseaseName);
+            modalDiseaseName.innerHTML = `<strong>Diagnosis:</strong> ${diseaseName}`;
+            modalBody.innerHTML = formattedReport;
+            modal.style.display = "block";
+            document.body.style.overflow = "hidden";
+        }
+    };
+});
+*/
+// Close modal functions
+function closeModal() {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+closeModalBtn.onclick = closeModal;
+
+window.onclick = (e) => {
+    if (e.target === modal) {
+        closeModal();
+    }
+};
+
+// Escape key to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === 'block') {
+        closeModal();
+    }
+});
+
+// Theme toggle
+const themeBtn = document.getElementById("themeBtn");
+
+function setTheme() {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
+        themeBtn.innerText = "☀️";
+    } else {
+        document.body.classList.add("light");
+        document.body.classList.remove("dark");
+        themeBtn.innerText = "🌙";
+    }
+}
+
+setTheme();
+
+themeBtn.onclick = () => {
+    if (document.body.classList.contains("dark")) {
+        document.body.classList.remove("dark");
+        document.body.classList.add("light");
+        localStorage.setItem("theme", "light");
+        themeBtn.innerText = "🌙";
+    } else {
+        document.body.classList.remove("light");
+        document.body.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        themeBtn.innerText = "☀️";
+    }
+};
+
+</script>
+
+</body>
+</html>
