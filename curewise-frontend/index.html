@@ -901,6 +901,8 @@ function closeModal() {
     setTimeout(() => {
         modal.style.display = 'none';
     }, 300);
+    
+    localStorage.setItem('factsModalSeen', 'true');
 }
 
 function initFactsModal() {
@@ -917,8 +919,11 @@ function initFactsModal() {
 }
 
 window.addEventListener('load', () => {
-    //initFactsModal();
+    const modalSeen = localStorage.getItem('factsModalSeen');
     const savedTheme = localStorage.getItem("theme");
+    if (!modalSeen) {
+        initFactsModal();
+    }
     if(savedTheme === "dark"){
         document.body.classList.add("dark");
         document.body.classList.remove("light");
