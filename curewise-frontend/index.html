@@ -679,7 +679,7 @@ body.light .dropdown-option {
 
 <button id="themeBtn" class="theme-toggle">🌙</button>
 
-<div id="factsModal" class="facts-modal">
+<div id="factsModal" class="facts-modal" style="display: none;">
     <div class="facts-modal-overlay"></div>
     <div class="facts-card-container">
         <button class="facts-close" id="closeFactsModal">✕</button>
@@ -901,8 +901,15 @@ function closeModal() {
     setTimeout(() => {
         modal.style.display = 'none';
     }, 300);
-    
     localStorage.setItem('factsModalSeen', 'true');
+}
+
+function destroyModal() {
+    const modal = document.getElementById('factsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hide');
+    }
 }
 
 function initFactsModal() {
@@ -919,11 +926,7 @@ function initFactsModal() {
 }
 
 window.addEventListener('load', () => {
-    const modalSeen = localStorage.getItem('factsModalSeen');
     const savedTheme = localStorage.getItem("theme");
-    if (!modalSeen) {
-        initFactsModal();
-    }
     if(savedTheme === "dark"){
         document.body.classList.add("dark");
         document.body.classList.remove("light");
@@ -935,6 +938,18 @@ window.addEventListener('load', () => {
     }
 });
 
+window.addEventListener('load', () => {
+    const modalSeen = localStorage.getItem('factsModalSeen');
+    if (!modalSeen) {
+        initFactsModal();
+    } else {
+        const modal = document.getElementById('factsModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hide');
+        }
+    }
+});
 // Dropdown event listeners
 dropdownButton.addEventListener('click', (e) => {
     e.stopPropagation();
