@@ -96,7 +96,7 @@ body.light h3 {
 .card{
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
-    padding: 20px;
+    padding: 24px;
     border-radius: 20px;
     margin-top: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -120,16 +120,24 @@ body.light .card:hover {
 }
 
 .profile-card p {
-    margin: 10px 0;
+    margin: 12px 0;
     font-size: 1rem;
-}
-
-.profile-card b {
-    color: #7aa2ff;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
 }
 
 body.light .profile-card b {
     color: #2b4eff;
+}
+body.light .profile-card p {
+    color: #1a1a2e;
+}
+.profile-card b {
+    color: #7aa2ff;
+    font-weight: 600;
+    margin-right: 8px;
+    display: inline-block;
+    min-width: 70px;
 }
 
 .best{
@@ -203,13 +211,14 @@ button:hover{
 }
 
 .bmi-label{
-    padding: 5px 12px;
+    padding: 5px 14px;
     border-radius: 40px;
     font-size: 12px;
     font-weight: 600;
     margin-left: 10px;
     color: white;
     display: inline-block;
+    vertical-align: middle;
 }
 
 .green{
@@ -413,8 +422,11 @@ body.light .modal-content {
     padding: 32px;
     max-height: 60vh;
     overflow-y: auto;
+    color: rgba(255, 255, 255, 0.85);
 }
-
+body.light .modal-body {
+    color: #333;
+}
 /* Report Card Styles */
 .report-card {
     background: rgba(255, 255, 255, 0.06);
@@ -445,6 +457,16 @@ body.light .report-card {
     gap: 8px;
 }
 
+.report-section p {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+body.light .report-section p {
+    color: #333;
+}
+    
 body.light .report-section h3 {
     color: #2b4eff;
     border-bottom-color: rgba(43, 78, 255, 0.2);
@@ -520,11 +542,17 @@ body.light .risk-high {
 .medicines-list li, .precautions-list li {
     margin-bottom: 10px;
     line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .medicines-list li::marker {
     color: #2b4eff;
     font-weight: bold;
+}
+    
+body.light .medicines-list li, 
+body.light .precautions-list li {
+    color: #444;
 }
 
 .doctor-advice {
@@ -535,10 +563,17 @@ body.light .risk-high {
     border-left: 4px solid #2b4eff;
 }
 
+.doctor-advice p {
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+}
+
 body.light .doctor-advice {
     background: #f0f4ff;
 }
-
+body.light .doctor-advice p {
+    color: #333;
+}
 .report-footer {
     margin-top: 28px;
     padding-top: 16px;
@@ -593,9 +628,7 @@ body.light .report-footer {
         font-size: 22px;
     }
     
-    .modal-body {
-        padding: 20px;
-    }
+   
     
     .disease-header {
         flex-direction: column;
