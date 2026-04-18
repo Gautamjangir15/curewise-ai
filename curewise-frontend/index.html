@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<title>CureWise AI | Smart Health Analysis</title>
+<link rel="icon" href="/static/favicon.ico">
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: radial-gradient(ellipse at 20% 30%, #0a0e27 0%, #060914 100%);
+    min-height: 100vh;
+    transition: 0.3s;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(43, 78, 255, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+body.dark{
+    background: radial-gradient(ellipse at 20% 30%, #0a0e27 0%, #060914 100%);
+}
+
+body.light {
+    background: radial-gradient(ellipse at 20% 30%, #f0f4ff 0%, #e8eeff 100%);
+}
+
+body.light::before {
+    background: radial-gradient(circle at 80% 20%, rgba(43, 78, 255, 0.05) 0%, transparent 60%);
+}
+
+.container{
+    width: 780px;
+    margin: 40px auto;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+body.light .container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+h1{
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #7aa2ff 0%, #2b4eff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 28px 0 20px 0;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.light h2 {
+    color: #1a1a2e;
+}
+
+h2:first-of-type {
+    margin-top: 0;
+}
+
+label{
+    font-weight: 500;
+    margin-top: 18px;
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+
+body.light label {
+    color: #1a1a2e;
+}
+
+input, select, textarea{
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 8px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+select option {
+    background: #1e1e2e;
+    color: white;
+}
+
+body.light input,
+body.light select,
+body.light textarea{
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light select option {
+    background: white;
+    color: #1a1a2e;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #2b4eff;
+    box-shadow: 0 0 0 3px rgba(43, 78, 255, 0.2);
+}
+
+textarea{
+    resize: none;
+    height: 80px;
+}
+
+button{
+    width: 100%;
+    padding: 14px;
+    margin-top: 32px;
+    border: none;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #2b4eff 0%, #1a3ad9 100%);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+button:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(43, 78, 255, 0.4);
+}
+
+.theme-toggle{
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2b4eff, #1a3ad9);
+    backdrop-filter: blur(10px);
+    color: white;
+    transition: all 0.2s ease;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(43, 78, 255, 0.3);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(43, 78, 255, 0.5);
+}
+
+body.light .theme-toggle {
+    background: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+.required {
+    color: #ff6b6b;
+    margin-left: 3px;
+}
+
+#selectedSymptoms {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.symptom-tag {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #2b4eff 0%, #1a3ad9 100%);
+    color: white;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    animation: fadeInUp 0.3s ease;
+}
+
+.symptom-tag span {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+}
+
+.symptom-tag span:hover {
+    transform: scale(1.2);
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.dropdown-button {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+body.light .dropdown-button {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+.dropdown-button:hover {
+    border-color: #2b4eff;
+    background: rgba(43, 78, 255, 0.1);
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.dropdown-menu.show .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 45, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    margin-top: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+}
+
+body.light .dropdown-menu {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: fadeInDown 0.2s ease;
+}
+
+.dropdown-search {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    background: inherit;
+    backdrop-filter: blur(20px);
+    border-radius: 20px 20px 0 0;
+}
+
+body.light .dropdown-search {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-search input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+body.light .dropdown-search input {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+.dropdown-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.light .dropdown-option {
+    color: #1a1a2e;
+}
+
+.dropdown-option:hover {
+    background: rgba(43, 78, 255, 0.2);
+    padding-left: 24px;
+}
+
+.dropdown-option.selected {
+    background: linear-gradient(135deg, rgba(43, 78, 255, 0.3), rgba(26, 58, 217, 0.3));
+    color: #7aa2ff;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s;
+}
+
+.loading-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.loading-gif {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.loading-text {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Spotify-Style Facts Modal */
+.facts-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: visible;
+    opacity: 1;
+    transition: 0.3s ease;
+}
+
+.facts-modal.hide {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.facts-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(20px);
+}
+
+.facts-card-container {
+    position: relative;
+    width: 600px;
+    max-width: 90%;
+    z-index: 20001;
+}
+
+.facts-close {
+    position: absolute;
+    top: -48px;
+    right: -12px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+    z-index: 20002;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.facts-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.facts-carousel {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.facts-slides-wrapper {
+    display: flex;
+    width: 100%;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fact-card {
+    flex: 0 0 100%;
+    width: 100%;
+    padding: 60px 40px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.fact-card:nth-child(1) {
+    background: linear-gradient(135deg, #1DB954 0%, #0a5c2e 100%);
+}
+
+.fact-card:nth-child(2) {
+    background: linear-gradient(135deg, #9147ff 0%, #2b4eff 100%);
+}
+
+.fact-card:nth-child(3) {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.fact-icon {
+    font-size: 80px;
+    margin-bottom: 32px;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    animation: bounce 2s infinite;
+}
+
+.fact-text {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.fact-sub {
+    font-size: 15px;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    max-width: 100%;
+    word-wrap: break-word;
+    padding: 0 20px;
+}
+
+.facts-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.fact-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fact-dot.active {
+    background: white;
+    width: 28px;
+    border-radius: 4px;
+}
+
+.fact-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.2);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(43, 78, 255, 0.5);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(43, 78, 255, 0.7);
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+    .container {
+        width: 90%;
+        margin: 20px auto;
+        padding: 24px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    .fact-text {
+        font-size: 22px;
+    }
+    
+    .fact-icon {
+        font-size: 60px;
+    }
+    
+    .fact-card {
+        padding: 40px 24px;
+        min-height: 350px;
+    }
+}
+
+#errorMsg {
+    background: rgba(255, 107, 107, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 12px;
+    border-radius: 12px;
+    border-left: 3px solid #ff6b6b;
+    margin-top: 16px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <img src="/static/health-checkup.gif" alt="Loading..." class="loading-gif">
+    <div class="loading-text">Analyzing your health data...</div>
+</div>
+
+<button id="themeBtn" class="theme-toggle">🌙</button>
+
+<div id="factsModal" class="facts-modal">
+    <div class="facts-modal-overlay"></div>
+    <div class="facts-card-container">
+        <button class="facts-close" id="closeFactsModal">✕</button>
+        <div class="facts-carousel" id="factsCarousel"></div>
+        <div class="facts-dots" id="factsDots"></div>
+    </div>
+</div>
+
+<div class="container">
+    <h1>✨ CureWise AI</h1>
+
+    <form onsubmit="handleSubmit(event)">
+        <h2>📋 Patient Information</h2>
+
+        <label>Full Name <span class="required">*</span></label>
+        <input type="text" name="name" placeholder="e.g., John Doe">
+
+        <label>Age <span class="required">*</span></label>
+        <input type="number" name="age" min="0" max="150" step="1" onkeydown="return filterInput(event)" oninput="validatePositive(this)" placeholder="Years">
+
+        <label>Gender <span class="required">*</span></label>
+        <select name="gender">
+            <option>Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+
+        <label>Height <span class="required">*</span></label>
+        <input type="number" name="height" min="1" max="300" step="0.1" onkeydown="return filterInput(event)" oninput="validatePositive(this)" placeholder="cm">
+
+        <label>Weight <span class="required">*</span></label>
+        <input type="number" name="weight" min="1" max="500" step="0.1" onkeydown="return filterInput(event)" oninput="validatePositive(this)" placeholder="kg">
+
+        <h2>🩺 Symptoms <span class="required">*</span></h2>
+
+        <div class="custom-dropdown">
+            <div class="dropdown-button">
+                <span id="selectedSymptomText">Select a symptom</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="dropdown-menu">
+                <div class="dropdown-search">
+                    <input type="text" id="symptomSearch" placeholder="🔍 Search symptoms...">
+                </div>
+                <div id="symptomOptions"></div>
+            </div>
+        </div>
+
+        <div id="selectedSymptoms"></div>
+        <input type="hidden" name="symptoms" id="symptomsInput">
+
+        <h2>⚠️ Severe Issues (if any)</h2>
+        <textarea name="severe_issues" placeholder="e.g., breathing difficulty, chest pain..."></textarea>
+
+        <h2>🌿 Allergies (if any)</h2>
+        <textarea name="allergies" placeholder="e.g., penicillin, peanuts, pollen..."></textarea>
+
+        <div id="errorMsg" style="display: none;"></div>
+
+        <button type="submit">🚀 Analyze Health</button>
+    </form>
+</div>
+
+<script>
+// Custom dropdown functionality
+const dropdownButton = document.querySelector('.dropdown-button');
+const dropdownMenu = document.querySelector('.dropdown-menu');
+const symptomOptions = document.getElementById('symptomOptions');
+const searchInput = document.getElementById('symptomSearch');
+const selectedSymptomText = document.getElementById('selectedSymptomText');
+const selectedSymptomsContainer = document.getElementById('selectedSymptoms');
+const symptomsInput = document.getElementById('symptomsInput');
+
+let selectedSymptoms = [];
+
+function filterInput(event) {
+    const key = event.key;
+    if (key === '-' || key === 'e' || key === 'E') {
+        event.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+function validatePositive(input) {
+    let value = parseFloat(input.value);
+    if (isNaN(value) || value < 0) {
+        input.value = '';
+    }
+    const min = parseFloat(input.getAttribute('min'));
+    const max = parseFloat(input.getAttribute('max'));
+    if (!isNaN(min) && value < min) {
+        input.value = min;
+    }
+    if (!isNaN(max) && value > max) {
+        input.value = max;
+    }
+}
+
+// Fun facts database
+const allFacts = [
+    { icon: "❤️", fact: "Your heart beats 100,000 times daily!", sub: "That's 35 million times a year" },
+    { icon: "🧠", fact: "Your brain generates enough electricity", sub: "To power a small LED bulb" },
+    { icon: "🦴", fact: "Bones are 4x stronger than concrete", sub: "Pound for pound" },
+    { icon: "👃", fact: "You can remember 50,000 scents", sub: "Better than any animal" },
+    { icon: "👁️", fact: "You blink 15-20 times per minute", sub: "That's 1,200 times per hour!" },
+    { icon: "🫀", fact: "Your liver can regenerate itself", sub: "Even if 75% is removed" },
+    { icon: "💪", fact: "The jaw muscle is strongest", sub: "Can close teeth with 200lbs force" },
+    { icon: "🫁", fact: "You breathe 20,000 times daily", sub: "Without even thinking" },
+    { icon: "🦷", fact: "Tooth enamel is hardest substance", sub: "Stronger than steel!" },
+    { icon: "👂", fact: "Ears never stop growing", sub: "Throughout your entire life" },
+    { icon: "🦶", fact: "Feet have 250,000 sweat glands", sub: "Producing half a pint daily" },
+    { icon: "🧬", fact: "You shed 600,000 skin particles/hour", sub: "Most becomes household dust" },
+    { icon: "🧠", fact: "Your brain is 73% water", sub: "Even slight dehydration affects focus" },
+    { icon: "❤️", fact: "Your heart pumps ~7,500 liters daily", sub: "Enough to fill a tanker truck weekly" },
+    { icon: "🩸", fact: "Blood travels 19,000 km per day", sub: "That's half the Earth's circumference" },
+    { icon: "👁️", fact: "Eyes can distinguish 10 million colors", sub: "But struggle in low light" },
+    { icon: "🧬", fact: "DNA in one cell is 2 meters long", sub: "Packed into a microscopic nucleus" },
+    { icon: "🫁", fact: "Left lung is smaller than right", sub: "To make space for your heart" },
+    { icon: "🧠", fact: "Brain uses 20% of body energy", sub: "Despite being only 2% of weight" },
+    { icon: "🦷", fact: "You produce 1–1.5 liters of saliva daily", sub: "Helps digestion and protection" },
+    { icon: "🦴", fact: "You're born with ~270 bones", sub: "They fuse into 206 as you grow" },
+    { icon: "👃", fact: "Smell is linked to memory", sub: "Because it connects to the limbic system" },
+    { icon: "🩺", fact: "Body temperature varies all day", sub: "Lowest in morning, highest in evening" },
+    { icon: "🧠", fact: "Dreams occur in REM sleep", sub: "Brain activity is almost like being awake" },
+    { icon: "🫀", fact: "Heart can beat outside body briefly", sub: "As long as it has oxygen" },
+    { icon: "🦠", fact: "You carry more bacteria than cells", sub: "Most are beneficial, not harmful" },
+    { icon: "💤", fact: "Sleep boosts immune system", sub: "Lack of sleep weakens defense" }
+];
+
+function getRandomFacts() {
+    const shuffled = [...allFacts];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, 3);
+}
+
+let currentIndex = 0;
+let autoRotateInterval;
+let currentFacts = [];
+let isModalVisible = true;
+
+function createCards(facts) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'facts-slides-wrapper';
+    
+    facts.forEach((fact) => {
+        const card = document.createElement('div');
+        card.className = 'fact-card';
+        card.innerHTML = `
+            <div class="fact-icon">${fact.icon}</div>
+            <div class="fact-text">${fact.fact}</div>
+            <div class="fact-sub">${fact.sub}</div>
+        `;
+        wrapper.appendChild(card);
+    });
+    
+    return wrapper;
+}
+
+function createDots(count) {
+    const dotsContainer = document.getElementById('factsDots');
+    dotsContainer.innerHTML = '';
+    
+    for (let i = 0; i < count; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'fact-dot';
+        if (i === currentIndex) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(i);
+            resetAutoRotate();
+        });
+        dotsContainer.appendChild(dot);
+    }
+}
+
+function goToSlide(index) {
+    const wrapper = document.querySelector('.facts-slides-wrapper');
+    if (!wrapper) return;
+    
+    currentIndex = index;
+    wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+    
+    const dots = document.querySelectorAll('.fact-dot');
+    dots.forEach((dot, i) => {
+        if (i === currentIndex) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+function nextSlide() {
+    if (currentIndex < currentFacts.length - 1) {
+        goToSlide(currentIndex + 1);
+    } else {
+        goToSlide(0);
+    }
+}
+
+function resetAutoRotate() {
+    if (autoRotateInterval) clearInterval(autoRotateInterval);
+    autoRotateInterval = setInterval(() => {
+        if (isModalVisible) {
+            nextSlide();
+        }
+    }, 4000);
+}
+
+function closeModal() {
+    isModalVisible = false;
+    if (autoRotateInterval) clearInterval(autoRotateInterval);
+    const modal = document.getElementById('factsModal');
+    modal.classList.add('hide');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+function initFactsModal() {
+    currentFacts = getRandomFacts();
+    const carousel = document.getElementById('factsCarousel');
+    carousel.innerHTML = '';
+    const wrapper = createCards(currentFacts);
+    carousel.appendChild(wrapper);
+    createDots(currentFacts.length);
+    currentIndex = 0;
+    goToSlide(0);
+    resetAutoRotate();
+    document.getElementById('closeFactsModal').addEventListener('click', closeModal);
+}
+
+window.addEventListener('load', () => {
+    initFactsModal();
+    const savedTheme = localStorage.getItem("theme");
+    if(savedTheme === "dark"){
+        document.body.classList.add("dark");
+        document.body.classList.remove("light");
+        themeBtn.innerText = "☀️";
+    } else {
+        document.body.classList.add("light");
+        document.body.classList.remove("dark");
+        themeBtn.innerText = "🌙";
+    }
+});
+
+// Dropdown event listeners
+dropdownButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle('show');
+});
+
+document.addEventListener('click', (e) => {
+    if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('show');
+    }
+});
+
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const options = symptomOptions.querySelectorAll('.dropdown-option');
+    options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            option.style.display = 'block';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+});
+
+function addSymptom(symptom) {
+    if (!selectedSymptoms.includes(symptom)) {
+        selectedSymptoms.push(symptom);
+        updateSelectedSymptoms();
+    }
+}
+
+function removeSymptom(index) {
+    selectedSymptoms.splice(index, 1);
+    updateSelectedSymptoms();
+}
+
+function updateSelectedSymptoms() {
+    selectedSymptomsContainer.innerHTML = '';
+    selectedSymptoms.forEach((symptom, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'symptom-tag';
+        tag.innerHTML = `${symptom} <span onclick="removeSymptom(${index})">×</span>`;
+        selectedSymptomsContainer.appendChild(tag);
+    });
+    symptomsInput.value = selectedSymptoms.join(', ');
+    if (selectedSymptoms.length === 0) {
+        selectedSymptomText.textContent = 'Select a symptom';
+    } else {
+        selectedSymptomText.textContent = `${selectedSymptoms.length} symptom(s) selected`;
+    }
+    dropdownMenu.classList.remove('show');
+    searchInput.value = '';
+    const options = symptomOptions.querySelectorAll('.dropdown-option');
+    options.forEach(option => {
+        option.style.display = 'block';
+    });
+}
+
+symptomOptions.addEventListener('click', (e) => {
+    const option = e.target.closest('.dropdown-option');
+    if (option) {
+        const symptom = option.getAttribute('data-value');
+        addSymptom(symptom);
+    }
+});
+
+window.removeSymptom = removeSymptom;
+
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+    }
+});
+
+updateSelectedSymptoms();
+
+// Theme toggle
+const themeBtn = document.getElementById("themeBtn");
+
+themeBtn.onclick = () => {
+    if(document.body.classList.contains("dark")){
+        document.body.classList.remove("dark");
+        document.body.classList.add("light");
+        localStorage.setItem("theme","light");
+        themeBtn.innerText = "🌙";
+    } else {
+        document.body.classList.remove("light");
+        document.body.classList.add("dark");
+        localStorage.setItem("theme","dark");
+        themeBtn.innerText = "☀️";
+    }
+}
+
+function validateForm(){
+    const name = document.querySelector("input[name='name']").value.trim()
+    const age = document.querySelector("input[name='age']").value.trim()
+    const gender = document.querySelector("select[name='gender']").value
+    const height = document.querySelector("input[name='height']").value.trim()
+    const weight = document.querySelector("input[name='weight']").value.trim()
+    const symptoms = document.getElementById("symptomsInput").value.trim()
+
+    if(age && (parseFloat(age) <= 0 || isNaN(parseFloat(age)))){
+        document.getElementById("errorMsg").textContent = "Age must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+    
+    if(height && (parseFloat(height) <= 0 || isNaN(parseFloat(height)))){
+        document.getElementById("errorMsg").textContent = "Height must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+    
+    if(weight && (parseFloat(weight) <= 0 || isNaN(parseFloat(weight)))){
+        document.getElementById("errorMsg").textContent = "Weight must be a positive number"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+
+    if(!name || !age || gender==="Select gender" || !height || !weight || !symptoms){
+        document.getElementById("errorMsg").textContent = "Please fill all mandatory fields ✨"
+        document.getElementById("errorMsg").style.display = "block"
+        setTimeout(() => {document.getElementById("errorMsg").style.display = "none";}, 3000);
+        return false
+    }
+    return true
+}
+
+async function handleSubmit(e){
+    e.preventDefault();
+    if(!validateForm()) return;
+
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('active');
+    
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '✨ Processing... ✨';
+
+    const data = {
+        name: document.querySelector("input[name='name']").value,
+        age: document.querySelector("input[name='age']").value,
+        gender: document.querySelector("select[name='gender']").value,
+        height: document.querySelector("input[name='height']").value,
+        weight: document.querySelector("input[name='weight']").value,
+        symptoms: document.getElementById("symptomsInput").value,
+        allergies: document.querySelector("textarea[name='allergies']").value,
+        severe_issues: document.querySelector("textarea[name='severe_issues']").value
+    }
+
+    try {
+        const res = await fetch("https://curewise-ai.onrender.com/api/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        })
+
+        const result = await res.json()
+        localStorage.setItem("curewise_result", JSON.stringify(result))
+        window.location.href = "/result"
+    } catch (error) {
+        overlay.classList.remove('active');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Analyze Health';
+        alert('Something went wrong. Please try again.');
+        console.error('Error:', error);
+    }
+}
+
+async function loadSymptoms() {
+    try {
+        const res = await fetch("https://curewise-ai.onrender.com/api/symptoms");
+        const data = await res.json();
+        const container = document.getElementById("symptomOptions");
+        data.forEach(symptom => {
+            const div = document.createElement("div");
+            div.className = "dropdown-option";
+            div.setAttribute("data-value", symptom);
+            div.textContent = symptom;
+            container.appendChild(div);
+        });
+    } catch (error) {
+        console.error('Error loading symptoms:', error);
+    }
+}
+
+loadSymptoms();
+</script>
+
+</body>
+</html>
