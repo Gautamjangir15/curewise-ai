@@ -10,7 +10,7 @@ The system focuses on **controlled input, probabilistic predictions, and explain
 
 ## 🌐 Live Demo
 
-> 🔗 [Add your deployed link here]
+> 🔗 https://curewise-ai.vercel.app/
 
 ---
 
